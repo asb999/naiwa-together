@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>生活小瞬间 · 奶蛙（Milk Frog）音画互动空间</title>
+  <!-- 引入 Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入 Google Fonts: Inter 与 Noto Sans SC -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', 'Noto Sans SC', sans-serif;
+      background-color: #0f172a;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* 摄像头镜像翻转，符合自拍直觉 */
+    .mirror-video {
+      transform: scaleX(-1);
+      object-fit: cover;
+    }
+
+    /* 参考图同款：暖金柔光外发光轮廓与暗角聚光质感 */
+    .frog-glow-sticker {
+      filter: drop-shadow(0 0 14px rgba(253, 224, 71, 0.85))
+              drop-shadow(0 0 32px rgba(234, 179, 8, 0.45));
+      transition: filter 0.3s ease;
+    }
+
+    /* 奶蛙捧腹大笑：结合参考图的Q弹果冻挤压拉伸 + 高频摇摆震颤 */
+    @keyframes bellyLaughShake {
+      0%, 100% { transform: translate(-50%, -50%) scale(1, 1) rotate(-3deg); }
+      15% { transform: translate(-50%, -56%) scale(1.08, 0.93) rotate(4deg); }
+      30% { transform: translate(-50%, -48%) scale(0.94, 1.07) rotate(-4deg); }
+      45% { transform: translate(-50%, -57%) scale(1.09, 0.92) rotate(3.5deg); }
+      60% { transform: translate(-50%, -49%) scale(0.95, 1.06) rotate(-3.5deg); }
+      75% { transform: translate(-50%, -55%) scale(1.06, 0.95) rotate(2.5deg); }
+    }
+
+    /* 奶蛙飞天开心轨迹（带Q弹呼吸感） */
+    @keyframes flySky {
+      0% {
+        transform: translate(-50%, 38vh) scale(0.6, 0.7) rotate(-8deg);
+        opacity: 0;
+      }
+      15% { opacity: 1; }
+      50% { transform: translate(-46%, -4vh) scale(1.08, 0.96) rotate(5deg); }
+      85% { opacity: 1; }
+      100% {
+        transform: translate(-54%, -42vh) scale(0.92, 1.04) rotate(-4deg);
+        opacity: 0;
+      }
+    }
+
+    /* 绿眼珠呆滞凝视（暗角聚光浮现 + 轻微呼吸） */
+    @keyframes deadpanFade {
+      0% { opacity: 0; transform: translate(-50%, -42%) scale(0.88); }
+      14% { opacity: 1; transform: translate(-50%, -50%) scale(1.03, 0.98); }
+      22% { opacity: 1; transform: translate(-50%, -50%) scale(1, 1); }
+      85% { opacity: 1; transform: translate(-50%, -50%) scale(1, 1); }
+      100% { opacity: 0; transform: translate(-50%, -54%) scale(0.94); }
+    }
+
+    /* 奶蛙飞天开心轨迹 */
+    @keyframes flySky {
+      0% {
+        transform: translate(-50%, 38vh) scale(0.65) rotate(-6deg);
+        opacity: 0;
+      }
+      15% { opacity: 1; }
+      50% { transform: translate(-46%, -4vh) scale(1.05) rotate(4deg); }
+      85% { opacity: 1; }
+      100% {
+        transform: translate(-54%, -42vh) scale(0.92) rotate(-3deg);
+        opacity: 0;
+      }
+    }
+
+    /* 绿眼珠呆滞凝视（静止冷幽默浮现） */
+    @keyframes deadpanFade {
+      0% { opacity: 0; transform: translate(-50%, -42%) scale(0.92); }
+      15% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -54%) scale(0.96); }
+    }
+
+    @keyframes floatDrift {
+      0% { transform: translate(-50%, -50%) translateY(0px) scale(0.85); opacity: 0; }
+      15% { opacity: 1; transform: translate(-50%, -50%) translateY(-10px) scale(1); }
+      85% { opacity: 1; transform: translate(-50%, -50%) translateY(-45px) scale(1.03); }
+      100% { opacity: 0; transform: translate(-50%, -50%) translateY(-70px) scale(0.95); }
+    }
+
+    @keyframes heartBeat {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      20% { transform: translate(-50%, -50%) scale(1.2); }
+      40% { transform: translate(-50%, -50%) scale(0.95); }
+      60% { transform: translate(-50%, -50%) scale(1.16); }
+    }
+
+    @keyframes poofOut {
+      0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(0.1); opacity: 0; }
+    }
+
+    .anim-laugh { animation: bellyLaughShake 0.42s infinite ease-in-out; }
+    .anim-fly { animation: flySky 4.2s forwards cubic-bezier(0.22, 1, 0.36, 1); }
+    .anim-deadpan { animation: deadpanFade 3.6s forwards ease-in-out; }
+    .anim-float { animation: floatDrift 3.2s forwards ease-out; }
+    .anim-heart { animation: heartBeat 0.9s infinite ease-in-out; }
+    .anim-poof { animation: poofOut 0.25s forwards ease-in !important; }
+
+    /* 自定义滚动条 */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 9999px; }
+  </style>
+</head>
+<body class="relative w-screen h-screen bg-slate-950 text-white overflow-hidden">
+
+  <!-- 全屏摄像头视频流 -->
+  <video id="webcam" class="absolute inset-0 w-full h-full mirror-video z-0" autoplay playsinline muted></video>
+  
+  <!-- 柔光氛围遮罩 -->
+  <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/30 z-10"></div>
+
+  <!-- 动态奶蛙表情包贴纸舞台容器 -->
+  <div id="sticker-stage" class="pointer-events-none absolute inset-0 overflow-hidden z-20"></div>
+
+  <!-- 顶部状态与功能栏 -->
+  <header class="absolute top-0 left-0 right-0 z-30 flex flex-wrap items-center justify-between gap-3 p-4 sm:p-6">
+    <!-- 左侧标题与灵感标签 -->
+    <div class="flex items-center gap-3 bg-slate-900/80 backdrop-blur-md border border-white/15 px-4 py-2.5 rounded-2xl shadow-lg">
+      <span class="text-2xl">🐸</span>
+      <div>
+        <h1 class="text-sm sm:text-base font-bold tracking-wide text-amber-300">生活小瞬间 · 抽象奶蛙 × 豆包魔性音画</h1>
+        <p id="status-text" class="text-xs text-slate-300">正在初始化 Google MediaPipe 视觉引擎...</p>
+      </div>
+    </div>
+
+    <!-- 右侧控制按钮组 -->
+    <div class="flex items-center gap-2 sm:gap-3">
+      <!-- 音色模式切换：奶蛙水牛狂笑 vs 豆包抽象语音 -->
+      <button id="btn-voice-mode" class="flex items-center gap-1.5 bg-indigo-600/85 hover:bg-indigo-500 backdrop-blur-md border border-indigo-400/30 px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-medium transition shadow-lg cursor-pointer">
+        <span id="voice-mode-icon">🎙️</span>
+        <span id="voice-mode-label">混搭：奶蛙+豆包梗音</span>
+      </button>
+
+      <!-- 声音开关 -->
+      <button id="btn-audio-toggle" class="flex items-center gap-2 bg-slate-900/80 hover:bg-slate-800/90 backdrop-blur-md border border-white/15 px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-medium transition shadow-lg cursor-pointer">
+        <span id="audio-icon">🔊</span>
+        <span id="audio-label">音效开启</span>
+      </button>
+
+      <!-- 打开本地奶蛙图库与音效替换面板 -->
+      <button id="btn-open-drawer" class="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold px-4 py-2.5 rounded-2xl text-xs sm:text-sm transition shadow-lg cursor-pointer">
+        <span>⚙️</span>
+        <span>图库与试听</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 实时动作识别反馈胶囊（底部居中） -->
+  <div class="pointer-events-none absolute bottom-5 left-1/2 -translate-x-1/2 z-30 w-full max-w-2xl px-4 flex flex-col items-center gap-2">
+    <!-- 当前触发的动作提示 -->
+    <div id="trigger-banner" class="opacity-0 transition-opacity duration-300 bg-amber-400/95 text-slate-950 font-bold px-5 py-2 rounded-full shadow-xl text-sm flex items-center gap-2">
+      <span id="trigger-emoji">🤣</span>
+      <span id="trigger-desc">触发：奶蛙捧腹大笑（齁齁齁齁）！</span>
+    </div>
+
+    <!-- 动作指南提示条 -->
+    <div class="bg-slate-900/80 backdrop-blur-md border border-white/15 px-4 py-2.5 rounded-2xl text-[11px] sm:text-xs text-slate-200 flex flex-wrap justify-center gap-x-4 gap-y-1 shadow-lg">
+      <span>🤣 <b>张嘴大笑 / 捂肚子</b>：奶蛙捧腹大笑（单/双蛙同频）</span>
+      <span>🙌 <b>双手举高</b>：奶蛙飞天开心</span>
+      <span>😐 <b>发呆2秒</b>：绿眼珠呆滞凝视</span>
+      <span>👍 <b>比赞</b>：眯眼点赞</span>
+      <span>🫶 <b>比心</b>：害羞发射爱心</span>
+      <span>👏 <b>拍手</b>：清空屏幕</span>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       自定义本地奶蛙表情包与 B站原声音效替换抽屉面板
+  ====================================================================== -->
+  <aside id="asset-drawer" class="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-slate-900/95 backdrop-blur-xl border-l border-white/15 z-40 transform translate-x-full transition-transform duration-300 flex flex-col shadow-2xl">
+    <div class="flex items-center justify-between p-5 border-b border-white/10">
+      <div>
+        <h2 class="text-base font-bold text-amber-300">🐸 奶蛙（Milk Frog）图库与原声管理</h2>
+        <p class="text-xs text-slate-400 mt-0.5">支持多文件一键拖入自动归位，并永久保存在本地浏览器</p>
+      </div>
+      <button id="btn-close-drawer" class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-200 cursor-pointer">✕</button>
+    </div>
+
+    <!-- 新增：一键批量拖入 / 多选自动匹配区域 -->
+    <div class="px-5 pt-4">
+      <label id="batch-drop-zone" class="flex flex-col items-center justify-center w-full p-4 border-2 border-dashed border-amber-400/50 hover:border-amber-400 rounded-2xl bg-amber-500/10 hover:bg-amber-500/15 cursor-pointer transition text-center">
+        <span class="text-xl mb-1">📂✨</span>
+        <span class="text-xs font-bold text-amber-300">点击多选 或 直接把奶蛙图片/MP3拖到这里</span>
+        <span class="text-[11px] text-slate-300 mt-0.5">自动按文件名匹配“大笑/双蛙/飞天/发呆”并永久记忆</span>
+        <input id="input-batch-files" type="file" multiple accept="image/*,audio/*" class="hidden" />
+      </label>
+    </div>
+
+    <div id="asset-list" class="flex-1 overflow-y-auto p-5 space-y-4">
+      <!-- 由 JS 动态渲染每个动作的图片预览、本地图片上传、本地音效上传及试看按钮 -->
+    </div>
+
+    <div class="p-4 border-t border-white/10 bg-slate-950/60 flex justify-between items-center text-xs text-slate-400">
+      <button id="btn-reset-storage" class="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 cursor-pointer">恢复默认配置</button>
+      <button id="btn-clear-stage" class="px-3 py-1.5 rounded-xl bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 border border-rose-500/30 cursor-pointer">立即清空画面</button>
+    </div>
+  </aside>
+
+  <!-- 启动遮罩层 -->
+  <div id="start-overlay" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center">
+    <div class="max-w-md bg-slate-900 border border-white/15 p-8 rounded-3xl shadow-2xl space-y-5">
+      <div class="text-5xl animate-bounce">🐸🤣</div>
+      <h2 class="text-2xl font-bold text-amber-300">生活小瞬间 · 奶蛙音画互动</h2>
+      <p class="text-sm text-slate-300 leading-relaxed">
+        融合《音乐与生命》的律动灵感与全网魔性的<b>“奶蛙捧腹大笑”</b>神韵。支持单人/多人同框大笑、双手举高飞天、发呆绿眼珠凝视，并内建低沉魔性“水牛狂笑”声效引擎。
+      </p>
+      <div class="pt-2">
+        <button id="btn-start-app" class="w-full py-3.5 px-6 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-base shadow-lg shadow-amber-500/20 transition cursor-pointer">
+          开启摄像头与声音互动
+        </button>
+      </div>
+      <p class="text-xs text-slate-400">进入后点击右上角“导入奶蛙原图与音效”，可一键载入你保存的4张原图</p>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       核心交互逻辑与 Google MediaPipe 集成
+  ====================================================================== -->
+  <script type="module">
+    import {
+      FaceLandmarker,
+      HandLandmarker,
+      FilesetResolver
+    } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
+
+    /**
+     * =========================================================================
+     * 1:1 复刻用户提供的 4 张「AI抽象奶蛙」神韵高清矢量图源（Data URI）
+     * 彻底告别萌系奶龙，精准还原头小肚圆、黑爪捂肚、绿眼珠呆滞神韵！
+     * =========================================================================
+     */
+    const SVG_TO_DATA_URI = (svgStr) => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgStr.trim())}`;
+
+    // 图4：单蛙捂肚捧腹大笑（黄色圆肚+深色小爪捂肚+眯眼张大嘴白牙）
+    const MILK_FROG_SINGLE_LAUGH_SVG = SVG_TO_DATA_URI(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 320">
+        <defs>
+          <radialGradient id="bodyGrad" cx="45%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="#fde047"/>
+            <stop offset="65%" stop-color="#eab308"/>
+            <stop offset="100%" stop-color="#a16207"/>
+          </radialGradient>
+          <radialGradient id="bellyGrad" cx="50%" cy="45%" r="55%">
+            <stop offset="0%" stop-color="#fef9c3"/>
+            <stop offset="75%" stop-color="#fde68a"/>
+            <stop offset="100%" stop-color="#d97706"/>
+          </radialGradient>
+        </defs>
+        <rect width="300" height="320" rx="36" fill="#f8fafc"/>
+        <!-- 双腿 -->
+        <path d="M95 250 L85 310 L125 310 L130 265 Z" fill="#ca8a04"/>
+        <path d="M205 250 L215 310 L175 310 L170 265 Z" fill="#ca8a04"/>
+        <!-- 圆滚滚梨形身躯与小脑袋 -->
+        <path d="M105 25 C140 15, 175 35, 195 85 C235 125, 255 190, 230 245 C205 285, 95 285, 70 245 C45 190, 65 110, 80 65 C88 40, 92 28, 105 25 Z" fill="url(#bodyGrad)"/>
+        <!-- 米白色大肚皮 -->
+        <ellipse cx="148" cy="188" rx="68" ry="66" fill="url(#bellyGrad)"/>
+        <!-- 眯成缝的魔性笑眼 -->
+        <path d="M78 66 Q92 52 104 62" stroke="#1e293b" stroke-width="6" stroke-linecap="round" fill="none"/>
+        <path d="M126 62 Q142 46 158 56" stroke="#1e293b" stroke-width="6" stroke-linecap="round" fill="none"/>
+        <!-- 仰天狂笑大嘴与白牙 -->
+        <path d="M92 84 Q126 78 152 72 Q162 115 128 122 Q94 124 92 84 Z" fill="#450a0a"/>
+        <path d="M96 86 Q125 81 148 76 L144 86 Q122 90 99 93 Z" fill="#ffffff"/>
+        <path d="M105 114 Q126 117 142 111 L139 104 Q124 108 107 106 Z" fill="#ffffff"/>
+        <!-- 左手臂 + 深褐色小爪子捂肚子 -->
+        <path d="M76 112 C48 145, 58 188, 108 198" stroke="#eab308" stroke-width="26" stroke-linecap="round" fill="none"/>
+        <ellipse cx="116" cy="198" rx="20" ry="14" fill="#57534e"/>
+        <path d="M126 191 L138 189 M128 198 L140 198 M126 205 L137 207" stroke="#44403c" stroke-width="4.5" stroke-linecap="round"/>
+        <!-- 右手臂 + 深褐色小爪子捂肚子 -->
+        <path d="M212 115 C238 150, 224 192, 174 200" stroke="#ca8a04" stroke-width="26" stroke-linecap="round" fill="none"/>
+        <ellipse cx="166" cy="200" rx="20" ry="14" fill="#57534e"/>
+        <path d="M156 193 L144 191 M154 200 L142 200 M156 207 L145 209" stroke="#44403c" stroke-width="4.5" stroke-linecap="round"/>
+      </svg>
+    `);
+
+    // 图1：双蛙海边仰天狂笑（蓝天大海背景 + 两只黄色奶蛙并排狂笑）
+    const MILK_FROG_DUO_LAUGH_SVG = SVG_TO_DATA_URI(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 280">
+        <defs>
+          <linearGradient id="skyBg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#38bdf8"/>
+            <stop offset="62%" stop-color="#bae6fd"/>
+            <stop offset="63%" stop-color="#0284c7"/>
+            <stop offset="100%" stop-color="#0369a1"/>
+          </linearGradient>
+        </defs>
+        <rect width="340" height="280" rx="32" fill="url(#skyBg)"/>
+        <!-- 左蛙 -->
+        <path d="M15 280 C10 190, 22 105, 58 95 C95 85, 118 135, 132 280 Z" fill="#facc15"/>
+        <ellipse cx="62" cy="240" rx="44" ry="48" fill="#fef08a"/>
+        <path d="M35 125 Q48 112 60 122" stroke="#1e293b" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path d="M78 122 Q92 110 104 120" stroke="#1e293b" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path d="M38 142 Q70 138 100 142 Q96 188 68 190 Q40 188 38 142 Z" fill="#450a0a"/>
+        <path d="M42 145 Q70 142 96 145 L93 154 Q70 151 45 154 Z" fill="#ffffff"/>
+        <!-- 右蛙 -->
+        <path d="M148 280 C152 175, 168 92, 212 88 C258 84, 305 155, 325 280 Z" fill="#eab308"/>
+        <ellipse cx="222" cy="238" rx="56" ry="52" fill="#fde68a"/>
+        <path d="M172 122 Q186 108 198 118" stroke="#1e293b" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <path d="M222 118 Q238 105 252 116" stroke="#1e293b" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <path d="M174 140 Q212 136 246 140 Q242 192 208 195 Q176 192 174 140 Z" fill="#450a0a"/>
+        <path d="M179 143 Q212 140 241 143 L237 153 Q212 150 183 153 Z" fill="#ffffff"/>
+      </svg>
+    `);
+
+    // 图2：奶蛙张臂飞天开心（蓝天白云背景 + 张开双短臂飞天狂笑）
+    const MILK_FROG_FLY_SVG = SVG_TO_DATA_URI(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+        <defs>
+          <linearGradient id="cloudSky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#93c5fd"/>
+            <stop offset="100%" stop-color="#e0f2fe"/>
+          </linearGradient>
+        </defs>
+        <rect width="300" height="300" rx="36" fill="url(#cloudSky)"/>
+        <circle cx="195" cy="75" r="34" fill="#ffffff" opacity="0.75"/>
+        <circle cx="225" cy="85" r="26" fill="#ffffff" opacity="0.75"/>
+        <!-- 张开的双短臂 -->
+        <ellipse cx="86" cy="118" rx="32" ry="18" transform="rotate(-20 86 118)" fill="#facc15"/>
+        <ellipse cx="206" cy="126" rx="34" ry="18" transform="rotate(22 206 126)" fill="#eab308"/>
+        <!-- 小短腿 -->
+        <path d="M112 225 L106 254 L126 254 L130 228 Z" fill="#ca8a04"/>
+        <path d="M174 228 L172 258 L192 258 L192 226 Z" fill="#ca8a04"/>
+        <!-- 圆滚滚飞天躯干 -->
+        <path d="M116 66 C145 58, 175 72, 185 108 C205 145, 206 205, 176 228 C148 246, 108 242, 92 214 C76 184, 86 135, 102 98 C108 82, 110 70, 116 66 Z" fill="#facc15"/>
+        <ellipse cx="142" cy="176" rx="48" ry="50" fill="#fef08a"/>
+        <!-- 飞天狂笑五官 -->
+        <path d="M112 92 Q122 84 130 91" stroke="#1e293b" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+        <path d="M150 92 Q160 84 168 91" stroke="#1e293b" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+        <path d="M118 104 Q140 102 162 104 Q158 132 140 134 Q122 132 118 104 Z" fill="#450a0a"/>
+        <path d="M122 106 Q140 105 158 106 L156 112 Q140 111 124 112 Z" fill="#ffffff"/>
+      </svg>
+    `);
+
+    // 图3：绿眼珠呆滞凝视（侧面光头黄色奶蛙 + 鼓出的绿色大眼珠 + 抿嘴发呆）
+    const MILK_FROG_DEADPAN_SVG = SVG_TO_DATA_URI(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+        <rect width="300" height="300" rx="36" fill="#ffffff"/>
+        <!-- 侧面圆润黄色头颈 -->
+        <path d="M155 24 C225 24, 265 95, 290 295 L55 295 C68 235, 92 185, 92 148 C92 128, 66 122, 64 112 C62 102, 78 82, 85 62 C98 34, 124 24, 155 24 Z" fill="#facc15"/>
+        <!-- 肚子弧线 -->
+        <path d="M62 295 C72 248, 108 228, 145 248 C165 258, 175 278, 176 295 Z" fill="#fde68a"/>
+        <!-- 左侧露出一半的左眼 -->
+        <ellipse cx="82" cy="74" rx="10" ry="18" fill="#86efac" stroke="#ca8a04" stroke-width="3"/>
+        <ellipse cx="80" cy="74" rx="6" ry="12" fill="#09090b"/>
+        <!-- 标志性绿色大眼珠 -->
+        <circle cx="144" cy="76" r="28" fill="#86efac" stroke="#ca8a04" stroke-width="4"/>
+        <circle cx="148" cy="77" r="18" fill="#09090b"/>
+        <circle cx="141" cy="70" r="4" fill="#ffffff" opacity="0.7"/>
+        <!-- 灵魂出窍抿紧的小嘴 -->
+        <path d="M66 116 Q96 115 124 116" stroke="#422006" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    `);
+
+    /**
+     * =========================================================================
+     * 【抽象奶蛙 × 豆包AI魔性音画配置区】
+     * 默认全部采用 1:1 复刻的抽象奶蛙视觉图 + 奶蛙水牛狂笑/豆包梗音双引擎
+     * =========================================================================
+     */
+    const MILK_FROG_ASSETS = {
+      singleLaugh: {
+        name: "单蛙捂肚捧腹大笑",
+        desc: "张嘴大笑 / 双手捂肚触发",
+        imgUrl: MILK_FROG_SINGLE_LAUGH_SVG,
+        fallbackImg: MILK_FROG_SINGLE_LAUGH_SVG,
+        // 真实奶蛙捧腹大笑原声直链（GitHub 开源奶蛙桌宠提取原声 + 备援）
+        audioUrl: "https://cdn.jsdelivr.net/gh/yugh6/Naiwa@main/%E5%8E%9F%E7%89%88%E7%AC%91%E5%A3%B0.wav",
+        backupAudioUrl: "https://www.myinstants.com/media/sounds/frog-laughing-meme.mp3",
+        synthFallbackType: "buffaloLaugh",
+        doubaoLine: "哈哈哈哈哈哈，这也太魔性了吧，笑到肚子疼！",
+        animClass: "anim-laugh",
+        duration: 4200
+      },
+      duoLaugh: {
+        name: "双蛙海边仰天狂笑",
+        desc: "2人及以上同时大笑触发彩蛋",
+        imgUrl: MILK_FROG_DUO_LAUGH_SVG,
+        fallbackImg: MILK_FROG_DUO_LAUGH_SVG,
+        audioUrl: "https://cdn.jsdelivr.net/gh/yugh6/Naiwa@main/%E5%8E%9F%E7%89%88%E7%AC%91%E5%A3%B0.wav",
+        backupAudioUrl: "https://www.myinstants.com/media/sounds/frog-laughing-meme.mp3",
+        synthFallbackType: "duoBuffaloLaugh",
+        doubaoLine: "哎哟喂，你们俩笑得跟两只奶蛙一样，停不下来啦！",
+        animClass: "anim-laugh",
+        duration: 4500
+      },
+      flyHappy: {
+        name: "奶蛙张臂飞天开心",
+        desc: "双手举高过肩欢呼触发",
+        imgUrl: MILK_FROG_FLY_SVG,
+        fallbackImg: MILK_FROG_FLY_SVG,
+        audioUrl: "",
+        synthFallbackType: "flyYippee",
+        doubaoLine: "芜湖——直接起飞！开心到模糊！",
+        animClass: "anim-fly",
+        duration: 4200
+      },
+      deadpanStare: {
+        name: "绿眼珠呆滞凝视",
+        desc: "面无表情发呆2秒触发",
+        imgUrl: MILK_FROG_DEADPAN_SVG,
+        fallbackImg: MILK_FROG_DEADPAN_SVG,
+        audioUrl: "",
+        synthFallbackType: "deadpanBoom",
+        doubaoLine: "嗯？大脑已离线，正在连接宇宙信号……",
+        animClass: "anim-deadpan",
+        duration: 3600
+      },
+      thumbsUp: {
+        name: "奶蛙抽象点赞",
+        desc: "单手竖起大拇指触发",
+        imgUrl: MILK_FROG_FLY_SVG,
+        fallbackImg: MILK_FROG_FLY_SVG,
+        audioUrl: "",
+        synthFallbackType: "flyYippee",
+        doubaoLine: "不愧是你，这一波直接拿捏！",
+        animClass: "anim-float",
+        duration: 3000
+      },
+      heartLove: {
+        name: "奶蛙发呆比心",
+        desc: "双手食指与拇指比心触发",
+        imgUrl: MILK_FROG_DUO_LAUGH_SVG,
+        fallbackImg: MILK_FROG_DUO_LAUGH_SVG,
+        audioUrl: "",
+        synthFallbackType: "heartChime",
+        doubaoLine: "比心收到啦，今天也是元气满满的一天！",
+        animClass: "anim-heart",
+        duration: 3200
+      },
+      clapClear: {
+        name: "拍手清屏",
+        desc: "双手快速合十拍击清空贴纸",
+        imgUrl: "",
+        fallbackImg: "",
+        audioUrl: "",
+        synthFallbackType: "clap",
+        doubaoLine: "啪！全部清空，深呼吸重新开始！",
+        animClass: "",
+        duration: 500
+      }
+    };
+
+    // 音色模式：'mix'（奶蛙水牛狂笑+豆包语音混搭） | 'frog'（纯奶蛙水牛狂笑） | 'doubao'（纯豆包AI梗音）
+    let voiceMode = "mix";
+    let prevHandDistance = null;
+
+    // 全局运行状态与防抖冷却记录
+    let faceLandmarker = null;
+    let handLandmarker = null;
+    let isRunning = false;
+    let isAudioEnabled = true;
+    let lastVideoTime = -1;
+    let audioCtx = null;
+    const neutralTimers = new Map();
+    const cooldowns = {
+      singleLaugh: 0,
+      duoLaugh: 0,
+      flyHappy: 0,
+      deadpanStare: 0,
+      thumbsUp: 0,
+      heartLove: 0,
+      clapClear: 0
+    };
+
+    // IndexedDB 本地永久缓存配置
+    const DB_NAME = "MilkFrogInteractiveDB";
+    const STORE_NAME = "customAssets";
+
+    function openAssetDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = () => req.result.createObjectStore(STORE_NAME);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function saveAssetToDB(key, blob) {
+      try {
+        const db = await openAssetDB();
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        tx.objectStore(STORE_NAME).put(blob, key);
+      } catch (e) {
+        console.warn("IndexedDB 保存失败:", e);
+      }
+    }
+
+    async function loadCachedAssetsFromDB() {
+      try {
+        const db = await openAssetDB();
+        const tx = db.transaction(STORE_NAME, "readonly");
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.getAllKeys();
+        await new Promise((resolve) => {
+          req.onsuccess = async () => {
+            for (const fullKey of req.result) {
+              const [assetKey, type] = String(fullKey).split(":");
+              if (!MILK_FROG_ASSETS[assetKey]) continue;
+              const getReq = store.get(fullKey);
+              await new Promise((r) => {
+                getReq.onsuccess = () => {
+                  if (getReq.result) {
+                    const url = URL.createObjectURL(getReq.result);
+                    if (type === "img") MILK_FROG_ASSETS[assetKey].imgUrl = url;
+                    if (type === "audio") MILK_FROG_ASSETS[assetKey].audioUrl = url;
+                  }
+                  r();
+                };
+                getReq.onerror = () => r();
+              });
+            }
+            resolve();
+          };
+          req.onerror = () => resolve();
+        });
+      } catch (e) {
+        console.warn("IndexedDB 读取失败:", e);
+      }
+    }
+
+    async function handleBatchFiles(files) {
+      let count = 0;
+      for (const file of Array.from(files)) {
+        const name = file.name.toLowerCase();
+        const url = URL.createObjectURL(file);
+        let targetKey = "singleLaugh";
+        if (name.includes("双") || name.includes("duo") || name.includes("两")) targetKey = "duoLaugh";
+        else if (name.includes("飞") || name.includes("fly") || name.includes("天")) targetKey = "flyHappy";
+        else if (name.includes("呆") || name.includes("绿") || name.includes("stare") || name.includes("凝视")) targetKey = "deadpanStare";
+        else if (name.includes("赞") || name.includes("thumb")) targetKey = "thumbsUp";
+        else if (name.includes("心") || name.includes("heart")) targetKey = "heartLove";
+
+        if (file.type.startsWith("image/")) {
+          MILK_FROG_ASSETS[targetKey].imgUrl = url;
+          await saveAssetToDB(`${targetKey}:img`, file);
+          count++;
+        } else if (file.type.startsWith("audio/")) {
+          MILK_FROG_ASSETS[targetKey].audioUrl = url;
+          await saveAssetToDB(`${targetKey}:audio`, file);
+          count++;
+        }
+      }
+      if (count > 0) {
+        renderAssetDrawer();
+        showTriggerBanner("📂", `已批量导入 ${count} 个素材并永久保存！`);
+      }
+    }
+
+    // 奶蛙“老水牛变声器（齁齁齁齁）”胸腔共振音效引擎
+    function playResonantFallbackAudio(type) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === "suspended") audioCtx.resume();
+        const now = audioCtx.currentTime;
+
+        if (type === "buffaloLaugh" || type === "duoBuffaloLaugh") {
+          const pulses = type === "duoBuffaloLaugh" ? 6 : 4;
+          for (let i = 0; i < pulses; i++) {
+            const t = now + i * 0.22;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(type === "duoBuffaloLaugh" ? 135 : 115, t);
+            osc.frequency.exponentialRampToValueAtTime(75, t + 0.16);
+            gain.gain.setValueAtTime(0.001, t);
+            gain.gain.linearRampToValueAtTime(0.24, t + 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(t);
+            osc.stop(t + 0.19);
+          }
+        } else if (type === "flyYippee") {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(280, now);
+          osc.frequency.exponentialRampToValueAtTime(640, now + 0.35);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.4);
+        } else if (type === "deadpanBoom") {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(110, now);
+          osc.frequency.exponentialRampToValueAtTime(42, now + 0.55);
+          gain.gain.setValueAtTime(0.32, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.62);
+        } else if (type === "heartChime") {
+          [523.25, 659.25, 783.99].forEach((freq, idx) => {
+            const t = now + idx * 0.09;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.16, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(t);
+            osc.stop(t + 0.26);
+          });
+        } else if (type === "clap") {
+          const bufferSize = audioCtx.sampleRate * 0.12;
+          const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+          const noise = audioCtx.createBufferSource();
+          noise.buffer = buffer;
+          const gain = audioCtx.createGain();
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+          noise.connect(gain);
+          gain.connect(audioCtx.destination);
+          noise.start(now);
+        }
+      } catch (e) {
+        console.warn("Web Audio 播放受限:", e);
+      }
+    }
+
+    // DOM 元素引用
+    const video = document.getElementById("webcam");
+    const stage = document.getElementById("sticker-stage");
+    const statusText = document.getElementById("status-text");
+    const triggerBanner = document.getElementById("trigger-banner");
+    const triggerEmoji = document.getElementById("trigger-emoji");
+    const triggerDesc = document.getElementById("trigger-desc");
+    let bannerTimeout = null;
+
+    /**
+     * 播放真实音效（优先用户本地上传的 B站/豆包 MP3 -> 否则触发「奶蛙水牛狂笑 + 豆包AI魔性语音」双引擎）
+     */
+    function speakDoubaoVoice(text) {
+      if (!("speechSynthesis" in window) || !text) return;
+      try {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = "zh-CN";
+        // 优先挑选中文女声（接近豆包默认清亮御姐声线）
+        const voices = window.speechSynthesis.getVoices();
+        const zhFemale = voices.find(v => v.lang.includes("zh") && (v.name.includes("Xiaoxiao") || v.name.includes("Tingting") || v.name.includes("Female") || v.name.includes("Google")));
+        if (zhFemale) utter.voice = zhFemale;
+        utter.pitch = 1.15;
+        utter.rate = 1.18;
+        utter.volume = 0.95;
+        window.speechSynthesis.speak(utter);
+      } catch (e) {
+        console.warn("豆包语音合成受限:", e);
+      }
+    }
+
+    function playSound(assetKey) {
+      if (!isAudioEnabled) return;
+      const asset = MILK_FROG_ASSETS[assetKey];
+      if (!asset) return;
+
+      // 优先播放真实奶蛙原版捧腹大笑音频直链（或用户上传的本地音频）
+      if (asset.audioUrl) {
+        const audio = new Audio(asset.audioUrl);
+        audio.crossOrigin = "anonymous";
+        audio.volume = 0.95;
+        audio.play().then(() => {
+          // 若在混搭模式下，笑声播放到高潮时叠加一句豆包神补刀
+          if (voiceMode === "mix" && asset.doubaoLine) {
+            setTimeout(() => {
+              if (isAudioEnabled) speakDoubaoVoice(asset.doubaoLine);
+            }, 1800);
+          }
+        }).catch(() => {
+          // 主直链受阻时自动尝试备援直链，再退回共振声学引擎
+          if (asset.backupAudioUrl) {
+            const backupAudio = new Audio(asset.backupAudioUrl);
+            backupAudio.volume = 0.95;
+            backupAudio.play().catch(() => {
+              if (asset.synthFallbackType) playResonantFallbackAudio(asset.synthFallbackType);
+            });
+          } else if (asset.synthFallbackType) {
+            playResonantFallbackAudio(asset.synthFallbackType);
+          }
+        });
+        return;
+      }
+
+      // 其他无外链动作根据当前音色模式播放【奶蛙音效】或【豆包AI魔性语音】
+      if (voiceMode === "frog") {
+        if (asset.synthFallbackType) playResonantFallbackAudio(asset.synthFallbackType);
+      } else if (voiceMode === "doubao") {
+        speakDoubaoVoice(asset.doubaoLine);
+      } else {
+        if (asset.synthFallbackType) playResonantFallbackAudio(asset.synthFallbackType);
+        setTimeout(() => {
+          if (isAudioEnabled) speakDoubaoVoice(asset.doubaoLine);
+        }, 250);
+      }
+    }
+
+    /**
+     * 更新底部提示胶囊
+     */
+    function showTriggerBanner(emoji, text) {
+      triggerEmoji.textContent = emoji;
+      triggerDesc.textContent = text;
+      triggerBanner.classList.remove("opacity-0");
+      triggerBanner.classList.add("opacity-100");
+
+      if (bannerTimeout) clearTimeout(bannerTimeout);
+      bannerTimeout = setTimeout(() => {
+        triggerBanner.classList.remove("opacity-100");
+        triggerBanner.classList.add("opacity-0");
+      }, 2500);
+    }
+
+    /**
+     * 在指定归一化坐标生成Q弹柔光奶蛙贴纸并播放对应音效
+     */
+    function spawnSticker(assetKey, normX, normY, sizePx = 230) {
+      const asset = MILK_FROG_ASSETS[assetKey];
+      if (!asset) return;
+
+      const wrapper = document.createElement("div");
+      wrapper.className = `nailong-sticker frog-glow-sticker absolute pointer-events-none ${asset.animClass}`;
+      const clampedX = Math.max(0.14, Math.min(0.86, normX));
+      const clampedY = Math.max(0.16, Math.min(0.84, normY));
+
+      wrapper.style.left = `${clampedX * 100}%`;
+      wrapper.style.top = `${clampedY * 100}%`;
+      wrapper.style.width = `${sizePx}px`;
+
+      // 参考图同款：暗角柔光晕影底座，衬托Q弹角色轮廓
+      const aura = document.createElement("div");
+      aura.className = "absolute -inset-6 rounded-full bg-radial from-amber-300/25 via-slate-950/45 to-transparent blur-xl -z-10";
+      wrapper.appendChild(aura);
+
+      const img = document.createElement("img");
+      img.src = asset.imgUrl;
+      img.alt = asset.name;
+      img.className = "w-full h-auto rounded-[2rem] shadow-2xl border-2 border-amber-200/70";
+      img.onerror = () => {
+        if (img.src !== asset.fallbackImg) {
+          img.src = asset.fallbackImg;
+        }
+      };
+
+      wrapper.appendChild(img);
+      stage.appendChild(wrapper);
+
+      playSound(assetKey);
+
+      setTimeout(() => {
+        if (wrapper.parentNode) {
+          wrapper.classList.add("anim-poof");
+          setTimeout(() => wrapper.remove(), 260);
+        }
+      }, asset.duration);
+    }
+
+    /**
+     * 拍手清屏动作
+     */
+    function clearAllStickers() {
+      const stickers = stage.querySelectorAll(".nailong-sticker");
+      if (stickers.length === 0) return;
+
+      playSound("clapClear");
+      showTriggerBanner("👏", "触发：拍手清屏！所有奶蛙已收起");
+
+      stickers.forEach(el => {
+        el.classList.add("anim-poof");
+        setTimeout(() => el.remove(), 250);
+      });
+    }
+
+    /**
+     * 初始化 Google MediaPipe FaceLandmarker 与 HandLandmarker
+     */
+    async function initMediaPipe() {
+      // 过滤 TensorFlow Lite / MediaPipe 底层非致命 INFO 级控制台日志
+      const originalConsoleError = console.error;
+      console.error = (...args) => {
+        if (typeof args[0] === "string" && args[0].includes("Created TensorFlow Lite XNNPACK delegate")) {
+          return;
+        }
+        originalConsoleError.apply(console, args);
+      };
+
+      try {
+        statusText.textContent = "正在加载 MediaPipe 视觉模型（支持多人同框）...";
+        const vision = await FilesetResolver.forVisionTasks(
+          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+        );
+
+        faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+            delegate: "CPU"
+          },
+          outputFaceBlendshapes: true,
+          runningMode: "VIDEO",
+          numFaces: 4
+        });
+
+        handLandmarker = await HandLandmarker.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+            delegate: "CPU"
+          },
+          runningMode: "VIDEO",
+          numHands: 4
+        });
+
+        statusText.textContent = "✨ 识别引擎就绪！试着张嘴狂笑、双手捂肚或发呆吧";
+        startCamera();
+      } catch (error) {
+        originalConsoleError("MediaPipe 初始化失败:", error);
+        statusText.textContent = "❌ 模型加载失败，请检查网络连接后刷新页面";
+      }
+    }
+
+    /**
+     * 开启高清摄像头
+     */
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            facingMode: "user"
+          },
+          audio: false
+        });
+        video.srcObject = stream;
+        video.addEventListener("loadeddata", () => {
+          isRunning = true;
+          predictLoop();
+        });
+      } catch (err) {
+        console.error("摄像头访问被拒绝:", err);
+        statusText.textContent = "⚠️ 无法访问摄像头，请在浏览器地址栏允许摄像头权限";
+      }
+    }
+
+    function getBlendshapeScore(categories, name) {
+      const found = categories.find(c => c.categoryName === name);
+      return found ? found.score : 0;
+    }
+
+    function isThumbsUp(landmarks) {
+      const thumbExtended = landmarks[4].y < landmarks[3].y && landmarks[4].y < landmarks[5].y;
+      const indexFolded = landmarks[8].y > landmarks[6].y;
+      const middleFolded = landmarks[12].y > landmarks[10].y;
+      const ringFolded = landmarks[16].y > landmarks[14].y;
+      const pinkyFolded = landmarks[20].y > landmarks[18].y;
+      return thumbExtended && indexFolded && middleFolded && ringFolded && pinkyFolded;
+    }
+
+    function predictLoop() {
+      if (!isRunning) return;
+
+      const now = performance.now();
+      if (video.currentTime !== lastVideoTime) {
+        lastVideoTime = video.currentTime;
+
+        const faceResults = faceLandmarker.detectForVideo(video, now);
+        const handResults = handLandmarker.detectForVideo(video, now);
+
+        processInteractions(faceResults, handResults, now);
+      }
+
+      requestAnimationFrame(predictLoop);
+    }
+
+    /**
+     * 核心动作与奶蛙神韵判定逻辑
+     */
+    function processInteractions(faceResults, handResults, now) {
+      const faces = faceResults.faceLandmarks || [];
+      const blendshapes = faceResults.faceBlendshapes || [];
+      const hands = handResults.landmarks || [];
+
+      let laughingPeople = [];
+
+      // 1. 遍历检测到的每一张人脸
+      faces.forEach((landmarks, idx) => {
+        const categories = blendshapes[idx]?.categories || [];
+        const smileAvg = (getBlendshapeScore(categories, "mouthSmileLeft") + getBlendshapeScore(categories, "mouthSmileRight")) / 2;
+        const jawOpen = getBlendshapeScore(categories, "jawOpen");
+
+        const nose = landmarks[1];
+        const screenX = 1 - nose.x;
+        const screenY = nose.y;
+
+        // 判定【捧腹大笑】：嘴角上扬且张大嘴巴
+        if (smileAvg > 0.45 && jawOpen > 0.26) {
+          laughingPeople.push({ x: screenX, y: screenY });
+          neutralTimers.delete(idx);
+        }
+        // 判定【发呆 / 呆滞凝视】：面无表情持续超过 2 秒
+        else if (smileAvg < 0.15 && jawOpen < 0.12) {
+          if (!neutralTimers.has(idx)) {
+            neutralTimers.set(idx, now);
+          } else if (now - neutralTimers.get(idx) > 2100) {
+            if (now - cooldowns.deadpanStare > 5500) {
+              cooldowns.deadpanStare = now;
+              spawnSticker("deadpanStare", screenX + 0.14, screenY - 0.15, 195);
+              showTriggerBanner("😐", "触发：奶蛙绿眼珠呆滞凝视...");
+            }
+            neutralTimers.set(idx, now);
+          }
+        } else {
+          neutralTimers.delete(idx);
+        }
+      });
+
+      // 2. 处理大笑触发（单蛙捂肚捧腹大笑 vs 双蛙海边仰天狂笑）
+      if (laughingPeople.length >= 2) {
+        if (now - cooldowns.duoLaugh > 4200) {
+          cooldowns.duoLaugh = now;
+          cooldowns.singleLaugh = now;
+          const midX = (laughingPeople[0].x + laughingPeople[1].x) / 2;
+          const midY = Math.max(laughingPeople[0].y, laughingPeople[1].y) + 0.15;
+          spawnSticker("duoLaugh", midX, midY, 290);
+          showTriggerBanner("🐸🤣", "触发彩蛋：双蛙仰天同频狂笑（齁齁齁齁）！");
+        }
+      } else if (laughingPeople.length === 1) {
+        if (now - cooldowns.singleLaugh > 3500) {
+          cooldowns.singleLaugh = now;
+          const p = laughingPeople[0];
+          const offsetX = p.x > 0.5 ? -0.18 : 0.18;
+          spawnSticker("singleLaugh", p.x + offsetX, p.y + 0.08, 220);
+          showTriggerBanner("🤣", "触发：奶蛙捂肚捧腹大笑（齁齁齁齁）！");
+        }
+      }
+
+      // 3. 处理手势互动（包括直接做“双手捂肚子捧腹”动作、举手飞天、点赞、比心、拍手）
+      if (hands.length > 0) {
+        // 检测单手点赞
+        for (const hand of hands) {
+          if (isThumbsUp(hand) && now - cooldowns.thumbsUp > 3200) {
+            cooldowns.thumbsUp = now;
+            const hx = 1 - hand[4].x;
+            const hy = hand[4].y;
+            spawnSticker("thumbsUp", hx, hy - 0.12, 180);
+            showTriggerBanner("👍", "触发：奶蛙眯眼点赞！");
+            break;
+          }
+        }
+
+        if (hands.length >= 2) {
+          const h1 = hands[0];
+          const h2 = hands[1];
+          const w1 = h1[0];
+          const w2 = h2[0];
+          const wristDist = Math.hypot(w1.x - w2.x, w1.y - w2.y);
+
+          // 3A. 判定【双手捂肚子捧腹动作】：双手放在画面中下部（腹部区域 y > 0.62）且双手靠近
+          if (w1.y > 0.62 && w2.y > 0.62 && wristDist < 0.25) {
+            if (now - cooldowns.singleLaugh > 3500) {
+              cooldowns.singleLaugh = now;
+              const bellyX = 1 - (w1.x + w2.x) / 2;
+              spawnSticker("singleLaugh", bellyX, 0.55, 230);
+              showTriggerBanner("🤣", "动作识别：捂肚捧腹大笑！");
+            }
+          }
+
+          // 3B. 判定【拍手清屏】：双手手腕迅速靠近碰撞（屏幕中上部）
+          if (w1.y <= 0.62 && prevHandDistance !== null && prevHandDistance > 0.22 && wristDist < 0.11) {
+            if (now - cooldowns.clapClear > 1500) {
+              cooldowns.clapClear = now;
+              clearAllStickers();
+            }
+          }
+          prevHandDistance = wristDist;
+
+          // 3C. 判定【双手举高过肩欢呼】 -> 复刻“奶蛙飞天开心”
+          if (w1.y < 0.42 && w2.y < 0.42 && wristDist > 0.25) {
+            if (now - cooldowns.flyHappy > 4500) {
+              cooldowns.flyHappy = now;
+              const centerX = 1 - (w1.x + w2.x) / 2;
+              spawnSticker("flyHappy", centerX, 0.65, 230);
+              showTriggerBanner("🙌", "触发：奶蛙张开双臂飞天开心！");
+            }
+          }
+
+          // 3D. 判定【双手比心】
+          const indexDist = Math.hypot(h1[8].x - h2[8].x, h1[8].y - h2[8].y);
+          const thumbDist = Math.hypot(h1[4].x - h2[4].x, h1[4].y - h2[4].y);
+          if (indexDist < 0.08 && thumbDist < 0.08) {
+            if (now - cooldowns.heartLove > 3500) {
+              cooldowns.heartLove = now;
+              const heartX = 1 - (h1[8].x + h2[8].x) / 2;
+              const heartY = (h1[8].y + h2[8].y) / 2 - 0.14;
+              spawnSticker("heartLove", heartX, heartY, 200);
+              showTriggerBanner("🫶", "触发：奶蛙害羞发射爱心！");
+            }
+          }
+        } else {
+          prevHandDistance = null;
+        }
+      } else {
+        prevHandDistance = null;
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 渲染“自定义奶蛙贴纸与音效管理面板”（支持本地图片 + 本地音频双上传）
+     * =========================================================================
+     */
+    function renderAssetDrawer() {
+      const listEl = document.getElementById("asset-list");
+      listEl.innerHTML = "";
+
+      Object.entries(MILK_FROG_ASSETS).forEach(([key, asset]) => {
+        if (key === "clapClear") return;
+
+        const card = document.createElement("div");
+        card.className = "bg-slate-800/85 border border-white/10 rounded-2xl p-3.5 flex items-center gap-3.5";
+
+        card.innerHTML = `
+          <img id="preview-${key}" src="${asset.imgUrl}" onerror="this.src='${asset.fallbackImg}'" class="w-16 h-16 rounded-xl object-cover bg-slate-900 border border-amber-400/40 shrink-0" />
+          <div class="flex-1 min-w-0">
+            <h3 class="text-sm font-bold text-amber-300 truncate">${asset.name}</h3>
+            <p class="text-[11px] text-slate-400 truncate">${asset.desc}</p>
+            <div class="mt-2 flex flex-wrap items-center gap-1.5">
+              <label class="px-2 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/30 text-[11px] font-medium cursor-pointer transition">
+                📷 换图片
+                <input type="file" accept="image/*" class="hidden input-img" data-key="${key}" />
+              </label>
+              <label class="px-2 py-1 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-400/30 text-[11px] font-medium cursor-pointer transition">
+                🎵 换音效
+                <input type="file" accept="audio/*" class="hidden input-audio" data-key="${key}" />
+              </label>
+              <button type="button" class="btn-test-sticker px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 text-[11px] cursor-pointer transition" data-key="${key}">
+                ▶ 试看
+              </button>
+            </div>
+          </div>
+        `;
+
+        // 本地图片替换
+        card.querySelector(".input-img").addEventListener("change", async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const objectUrl = URL.createObjectURL(file);
+          MILK_FROG_ASSETS[key].imgUrl = objectUrl;
+          document.getElementById(`preview-${key}`).src = objectUrl;
+          await saveAssetToDB(`${key}:img`, file);
+          showTriggerBanner("✅", `已永久载入本地「${asset.name}」图片！`);
+        });
+
+        // 本地音效替换（支持导入从 B站 BV11MiyBpEFL 提取的音频）
+        card.querySelector(".input-audio").addEventListener("change", async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const objectUrl = URL.createObjectURL(file);
+          MILK_FROG_ASSETS[key].audioUrl = objectUrl;
+          await saveAssetToDB(`${key}:audio`, file);
+          showTriggerBanner("🎵", `已永久绑定「${asset.name}」专属音效！`);
+        });
+
+        // 试看按钮
+        card.querySelector(".btn-test-sticker").addEventListener("click", () => {
+          spawnSticker(key, 0.5, 0.5, 220);
+          showTriggerBanner("🎬", `预览：${asset.name}`);
+        });
+
+        listEl.appendChild(card);
+      });
+    }
+
+    // 绑定 UI 交互事件
+    document.getElementById("btn-start-app").addEventListener("click", async () => {
+      document.getElementById("start-overlay").classList.add("hidden");
+      await loadCachedAssetsFromDB();
+      renderAssetDrawer();
+      initMediaPipe();
+    });
+
+    // 绑定批量多选与全局拖拽导入
+    const batchInput = document.getElementById("input-batch-files");
+    batchInput.addEventListener("change", (e) => handleBatchFiles(e.target.files));
+
+    window.addEventListener("dragover", (e) => e.preventDefault());
+    window.addEventListener("drop", (e) => {
+      e.preventDefault();
+      if (e.dataTransfer?.files?.length) {
+        handleBatchFiles(e.dataTransfer.files);
+      }
+    });
+
+    document.getElementById("btn-reset-storage").addEventListener("click", async () => {
+      indexedDB.deleteDatabase(DB_NAME);
+      location.reload();
+    });
+
+    document.getElementById("btn-audio-toggle").addEventListener("click", () => {
+      isAudioEnabled = !isAudioEnabled;
+      if (!isAudioEnabled && "speechSynthesis" in window) window.speechSynthesis.cancel();
+      document.getElementById("audio-icon").textContent = isAudioEnabled ? "🔊" : "🔇";
+      document.getElementById("audio-label").textContent = isAudioEnabled ? "音效开启" : "已静音";
+    });
+
+    // 切换音色模式（奶蛙+豆包混搭 / 纯奶蛙水牛笑 / 纯豆包语音）
+    const voiceModes = [
+      { id: "mix", icon: "🎙️", label: "混搭：奶蛙+豆包梗音" },
+      { id: "frog", icon: "🐸", label: "纯奶蛙：水牛齁齁笑" },
+      { id: "doubao", icon: "🤖", label: "纯豆包：AI魔性神补刀" }
+    ];
+    let voiceModeIdx = 0;
+    document.getElementById("btn-voice-mode").addEventListener("click", () => {
+      voiceModeIdx = (voiceModeIdx + 1) % voiceModes.length;
+      const current = voiceModes[voiceModeIdx];
+      voiceMode = current.id;
+      document.getElementById("voice-mode-icon").textContent = current.icon;
+      document.getElementById("voice-mode-label").textContent = current.label;
+      showTriggerBanner(current.icon, `已切换音色模式：${current.label}`);
+    });
+
+    const drawer = document.getElementById("asset-drawer");
+    document.getElementById("btn-open-drawer").addEventListener("click", () => {
+      drawer.classList.remove("translate-x-full");
+    });
+    document.getElementById("btn-close-drawer").addEventListener("click", () => {
+      drawer.classList.add("translate-x-full");
+    });
+    document.getElementById("btn-clear-stage").addEventListener("click", clearAllStickers);
+  </script>
+</body>
+</html>
